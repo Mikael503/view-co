@@ -748,6 +748,8 @@ section[id] {
 }
 .form__status { font-size: 0.82rem; color: var(--muted); }
 .form__status.is-error { color: #b3402f; }
+.form__status a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.btn[disabled] { opacity: 0.55; cursor: progress; }
 
 /* ---------- Footer ---------- */
 .site-footer {

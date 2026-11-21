@@ -4,6 +4,11 @@
 
   const CONTACT_EMAIL = "viewco205@gmail.com";
 
+  /* Envoi réel du formulaire : le service relaie la demande vers CONTACT_EMAIL
+     sans passer par la messagerie du visiteur. L'adresse est déjà publique sur
+     le site, il n'y a donc aucun secret dans cette constante. */
+  const FORM_ENDPOINT = "https://formsubmit.co/ajax/" + CONTACT_EMAIL;
+
   /* ---------- Header state ---------- */
   const header = document.getElementById("siteHeader");
   const onScroll = () => {
@@ -138,12 +143,27 @@
     revealItems.forEach((el) => observer.observe(el));
   }
 
-  /* ---------- Contact form (mailto handoff) ---------- */
+  /* ---------- Contact form ---------- */
   const form = document.getElementById("contactForm");
   const status = document.getElementById("formStatus");
+  const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+  const submitHtml = submitBtn ? submitBtn.innerHTML : "";
+
+  /* Repli : lien mailto cliquable, jamais ouvert automatiquement. */
+  const showStatus = (text, isError, fallbackUrl) => {
+    if (!status) return;
+    status.textContent = text;
+    status.classList.toggle("is-error", Boolean(isError));
+    if (!fallbackUrl) return;
+    const link = document.createElement("a");
+    link.href = fallbackUrl;
+    link.textContent = CONTACT_EMAIL;
+    status.append(" ");
+    status.append(link);
+  };
 
   if (form) {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
       const data = new FormData(form);
@@ -156,12 +176,12 @@
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 
       if (!name || !message || !emailOk) {
-        if (status) {
-          status.textContent = emailOk || !email
+        showStatus(
+          emailOk || !email
             ? "Merci de renseigner votre nom, votre email et votre projet."
-            : "Merci de vérifier l’adresse email saisie.";
-          status.classList.add("is-error");
-        }
+            : "Merci de vérifier l’adresse email saisie.",
+          true
+        );
         return;
       }
 
@@ -174,21 +194,57 @@
         "",
         message,
       ].join("\n");
-
-      /* Aucun envoi serveur : la demande est remise à la messagerie du visiteur.
-         On ne parle donc jamais d’envoi réussi, et les champs sont conservés
-         au cas où aucun client mail ne s’ouvrirait. */
-      if (status) {
-        status.classList.remove("is-error");
-        status.textContent =
-          "Merci " + name.split(" ")[0] + ". Votre messagerie s’ouvre avec la demande pré-remplie ; " +
-          "si rien ne se passe, écrivez-nous à " + CONTACT_EMAIL + ".";
-      }
-
-      window.location.href =
+      const fallbackUrl =
         "mailto:" + CONTACT_EMAIL +
         "?subject=" + encodeURIComponent(subject) +
         "&body=" + encodeURIComponent(body);
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Envoi en cours…";
+      }
+      showStatus("Envoi de votre demande…", false);
+
+      try {
+        const response = await fetch(FORM_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            company: company || "—",
+            need: need,
+            message: message,
+            _subject: subject,
+            _template: "table",
+            _honey: "",
+          }),
+        });
+
+        /* Ce service répond 200 même en cas de refus : seul success === "true"
+           prouve que la demande a été acceptée puis envoyée. */
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || String(result.success) !== "true") {
+          throw new Error(String(result.message || "HTTP " + response.status));
+        }
+
+        form.reset();
+        showStatus(
+          "Merci " + name.split(" ")[0] +
+            ". Votre demande est bien arrivée ; nous répondons sous 24 h ouvrées.",
+          false
+        );
+      } catch (error) {
+        /* Aucun message de réussite si l’envoi a échoué : les champs restent
+           remplis et l’adresse email est proposée en repli. */
+        console.error("Envoi du formulaire impossible :", error);
+        showStatus("L’envoi n’a pas abouti. Réessayez dans un instant, ou écrivez-nous à", true, fallbackUrl);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = submitHtml;
+        }
+      }
     });
   }
 
