@@ -692,6 +692,15 @@ section[id] {
 }
 .field { display: grid; gap: 8px; }
 .field--full { grid-column: 1 / -1; }
+
+/* Champ piège anti-spam : présent dans le DOM, invisible et sans effet sur la grille. */
+.form__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
 .field label {
   font-size: 0.7rem;
   letter-spacing: 0.14em;

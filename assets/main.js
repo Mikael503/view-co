@@ -172,6 +172,15 @@
       const company = String(data.get("company") || "").trim();
       const need = String(data.get("need") || "").trim();
       const message = String(data.get("message") || "").trim();
+      const honey = String(data.get("_honey") || "").trim();
+
+      /* Champ piège rempli : c’est un robot, on n’envoie rien et on n’annonce
+         aucun succès. Un visiteur qui déclencherait le piège par autofill garde
+         la possibilité de réessayer ou d’écrire directement. */
+      if (honey) {
+        showStatus("Merci de réessayer : le formulaire n’a pas pu être envoyé.", true);
+        return;
+      }
 
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
 

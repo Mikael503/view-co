@@ -406,6 +406,12 @@
         </div>
 
         <form class="form" id="contactForm" data-reveal>
+          <!-- Champ piège anti-spam : invisible et hors tabulation, seuls les robots le remplissent. -->
+          <div class="form__trap" aria-hidden="true">
+            <label for="formHoney">Site web</label>
+            <input id="formHoney" name="_honey" type="text" tabindex="-1" autocomplete="off">
+          </div>
+
           <div class="field">
             <label for="name">Nom &amp; prénom</label>
             <input id="name" name="name" type="text" autocomplete="name" placeholder="Jeanne Dupont" required>
