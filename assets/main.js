@@ -82,7 +82,20 @@
   /* ---------- Services accordion ---------- */
   const services = Array.from(document.querySelectorAll(".service"));
 
+  /* Un panneau replié est visuellement caché (0fr + overflow: hidden) mais
+     resterait dans l'arbre d'accessibilité. On le retire donc explicitement
+     des lecteurs d'écran et de l'ordre de tabulation. */
+  const setPanelState = (service, open) => {
+    const panel = service.querySelector(".service__panel");
+    if (!panel) return;
+    panel.inert = !open;
+    if (open) panel.removeAttribute("aria-hidden");
+    else panel.setAttribute("aria-hidden", "true");
+  };
+
   services.forEach((service) => {
+    setPanelState(service, service.classList.contains("is-open"));
+
     const toggle = service.querySelector(".service__toggle");
     if (!toggle) return;
 
@@ -93,12 +106,14 @@
         const otherToggle = other.querySelector(".service__toggle");
         other.classList.remove("is-open");
         if (otherToggle) otherToggle.setAttribute("aria-expanded", "false");
+        if (other !== service) setPanelState(other, false);
       });
 
       if (willOpen) {
         service.classList.add("is-open");
         toggle.setAttribute("aria-expanded", "true");
       }
+      setPanelState(service, willOpen);
     });
   });
 
