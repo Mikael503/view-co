@@ -17,31 +17,66 @@
   const burger = document.getElementById("burger");
   const nav = document.getElementById("primaryNav");
 
-  const closeNav = () => {
+  const mobileNav = window.matchMedia("(max-width: 860px)");
+
+  /* Menu fermé sur mobile : retiré de l'ordre de tabulation et des lecteurs d'écran.
+     Sur desktop, la navigation reste toujours interactive. */
+  const syncNav = () => {
+    if (!nav) return;
+    const open = mobileNav.matches && nav.classList.contains("is-open");
+    if (mobileNav.matches) {
+      nav.inert = !open;
+      if (open) nav.removeAttribute("aria-hidden");
+      else nav.setAttribute("aria-hidden", "true");
+    } else {
+      nav.inert = false;
+      nav.removeAttribute("aria-hidden");
+    }
+  };
+
+  const closeNav = (restoreFocus) => {
     if (!nav || !burger) return;
     nav.classList.remove("is-open");
     burger.setAttribute("aria-expanded", "false");
     burger.setAttribute("aria-label", "Ouvrir le menu");
     document.body.classList.remove("is-locked");
+    syncNav();
+    if (restoreFocus) burger.focus();
+  };
+
+  const openNav = () => {
+    if (!nav || !burger) return;
+    nav.classList.add("is-open");
+    burger.setAttribute("aria-expanded", "true");
+    burger.setAttribute("aria-label", "Fermer le menu");
+    document.body.classList.add("is-locked");
+    syncNav();
+    const firstLink = nav.querySelector("a");
+    if (firstLink) firstLink.focus();
   };
 
   if (burger && nav) {
+    syncNav();
+
     burger.addEventListener("click", () => {
-      const open = nav.classList.toggle("is-open");
-      burger.setAttribute("aria-expanded", String(open));
-      burger.setAttribute("aria-label", open ? "Fermer le menu" : "Ouvrir le menu");
-      document.body.classList.toggle("is-locked", open);
+      if (nav.classList.contains("is-open")) closeNav(true);
+      else openNav();
     });
 
-    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", closeNav));
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => closeNav(false));
+    });
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeNav();
+      if (e.key === "Escape" && nav.classList.contains("is-open")) closeNav(true);
     });
 
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 860) closeNav();
-    });
+    const onBreakpoint = () => {
+      if (!mobileNav.matches) closeNav(false);
+      syncNav();
+    };
+    if (mobileNav.addEventListener) mobileNav.addEventListener("change", onBreakpoint);
+    window.addEventListener("resize", onBreakpoint);
   }
 
   /* ---------- Services accordion ---------- */
@@ -103,9 +138,13 @@
       const need = String(data.get("need") || "").trim();
       const message = String(data.get("message") || "").trim();
 
-      if (!name || !email || !message) {
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+
+      if (!name || !message || !emailOk) {
         if (status) {
-          status.textContent = "Merci de renseigner votre nom, votre email et votre projet.";
+          status.textContent = emailOk || !email
+            ? "Merci de renseigner votre nom, votre email et votre projet."
+            : "Merci de vérifier l’adresse email saisie.";
           status.classList.add("is-error");
         }
         return;
@@ -121,16 +160,20 @@
         message,
       ].join("\n");
 
+      /* Aucun envoi serveur : la demande est remise à la messagerie du visiteur.
+         On ne parle donc jamais d’envoi réussi, et les champs sont conservés
+         au cas où aucun client mail ne s’ouvrirait. */
+      if (status) {
+        status.classList.remove("is-error");
+        status.textContent =
+          "Merci " + name.split(" ")[0] + ". Votre messagerie s’ouvre avec la demande pré-remplie ; " +
+          "si rien ne se passe, écrivez-nous à " + CONTACT_EMAIL + ".";
+      }
+
       window.location.href =
         "mailto:" + CONTACT_EMAIL +
         "?subject=" + encodeURIComponent(subject) +
         "&body=" + encodeURIComponent(body);
-
-      if (status) {
-        status.classList.remove("is-error");
-        status.textContent = "Merci " + name.split(" ")[0] + ", votre message s’ouvre dans votre messagerie.";
-      }
-      form.reset();
     });
   }
 

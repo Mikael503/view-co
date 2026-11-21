@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+# Aucune page privée sur ce site one-page.

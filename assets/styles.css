@@ -93,6 +93,11 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   margin-inline: auto;
 }
 
+/* Les ancres doivent laisser respirer les titres sous l'en-tête fixe. */
+section[id] {
+  scroll-margin-top: calc(var(--header-h) + 20px);
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   --bg: transparent;
@@ -300,46 +305,33 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 .hero__meta dd { font-size: 0.92rem; font-weight: 500; }
 
+/* Visuel du hero : le logo original, sans cadre ni décor, devant la sculpture
+   filaire dessinée en WebGL (retirée si le navigateur ne la supporte pas). */
 .hero__visual {
   position: relative;
   aspect-ratio: 4 / 5;
-  background: var(--ink);
-  border-radius: 4px;
-  overflow: hidden;
   display: grid;
   place-items: center;
   isolation: isolate;
 }
-.hero__visual-grid {
+.hero__canvas {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px);
-  background-size: 25% 20%;
+  width: 100%;
+  height: 100%;
   z-index: 0;
 }
 .hero__logo {
-  width: 62%;
-  height: auto;
   position: relative;
   z-index: 1;
+  width: 62%;
+  max-width: 270px;
+  height: auto;
   animation: markIn 1.2s var(--ease) 0.2s both;
 }
 @keyframes markIn {
   from { opacity: 0; transform: translateY(18px) scale(0.96); }
   to { opacity: 1; transform: none; }
-}
-.hero__visual-caption {
-  position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 20px;
-  z-index: 1;
-  font-size: 0.64rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(243, 242, 238, 0.55);
 }
 
 /* ---------- Marquee ---------- */
@@ -751,19 +743,19 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .site-footer__up:hover { color: var(--paper); }
 
 /* ---------- Reveal ---------- */
-[data-reveal] {
+/* Repli sans JavaScript : sans la classe .js, tout le contenu reste visible. */
+.js [data-reveal] {
   opacity: 0;
   transform: translateY(22px);
   transition: opacity 0.85s var(--ease) var(--d, 0s), transform 0.85s var(--ease) var(--d, 0s);
-  will-change: opacity, transform;
 }
-[data-reveal].is-in { opacity: 1; transform: none; }
+.js [data-reveal].is-in { opacity: 1; transform: none; }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1080px) {
   .hero__grid { grid-template-columns: minmax(0, 1fr); }
-  .hero__visual { aspect-ratio: 16 / 11; order: -1; }
-  .hero__logo { width: 58%; }
+  .hero__visual { order: -1; aspect-ratio: 5 / 4; }
+  .hero__logo { max-width: 190px; }
   .services__layout { grid-template-columns: minmax(0, 1fr); }
   .services__head { position: static; }
   .services__title { max-width: 20ch; }
@@ -796,6 +788,16 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   .nav.is-open { opacity: 1; pointer-events: auto; transform: none; }
   .nav > a:not(.btn) { padding: 8px 0; opacity: 1; }
   .nav__cta { margin-top: 20px; font-family: var(--font-body); font-size: 0.95rem; }
+  /* Cibles tactiles : au moins 44 px de haut sur mobile. */
+  .logo { min-height: 44px; }
+  .contact__details a,
+  .site-footer__nav a,
+  .site-footer__up {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
   .mission__body { grid-template-columns: minmax(0, 1fr); }
   .pillars { grid-template-columns: minmax(0, 1fr); gap: 22px; }
   .site-footer__bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
