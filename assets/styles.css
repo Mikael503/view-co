@@ -645,7 +645,7 @@ section[id] {
 .contact__lead { color: var(--muted); max-width: 40ch; margin-bottom: clamp(28px, 4vw, 44px); }
 .contact__details { display: grid; gap: 16px; border-top: 1px solid var(--line); padding-top: 22px; }
 .contact__details li { display: grid; gap: 6px; font-size: 0.95rem; }
-.contact__links { display: grid; gap: 2px; justify-items: start; }
+.contact__links { display: flex; align-items: center; gap: 10px; }
 .contact__details span {
   font-size: 0.67rem;
   letter-spacing: 0.18em;
@@ -664,6 +664,22 @@ section[id] {
 .contact__details svg { width: 15px; height: 15px; flex: none; opacity: 0.55; transition: opacity 0.3s var(--ease); }
 .contact__details a:hover { border-bottom-color: var(--ink); }
 .contact__details a:hover svg { opacity: 1; }
+.contact__links a {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transition: background 0.3s var(--ease), border-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+.contact__links a svg { width: 16px; height: 16px; opacity: 1; }
+.contact__links a:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  border-bottom-color: var(--ink);
+}
 
 .form {
   display: grid;
@@ -826,6 +842,7 @@ section[id] {
     align-items: center;
     min-height: 44px;
   }
+  .contact__links a { display: grid; width: 44px; height: 44px; }
 
   .mission__body { grid-template-columns: minmax(0, 1fr); }
   .pillars { grid-template-columns: minmax(0, 1fr); gap: 22px; }
