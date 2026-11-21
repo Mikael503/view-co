@@ -83,7 +83,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 /* ---------- Shared bits ---------- */
 .label {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   font-size: 0.72rem;
   letter-spacing: 0.22em;
@@ -91,18 +91,19 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   color: var(--muted);
   font-weight: 500;
 }
-.label span {
-  font-family: var(--font-display);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+.label__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 100px;
-  padding: 3px 9px;
-  line-height: 1;
 }
+.label__mark svg { width: 13px; height: 13px; }
 .label--light { color: var(--muted-light); }
-.label--light span { color: var(--paper); border-color: var(--line-light); }
+.label--light .label__mark { color: var(--paper); border-color: var(--line-light); }
 
 .section {
   padding: clamp(72px, 10vw, 148px) var(--pad);
@@ -419,14 +420,18 @@ section[id] {
   padding: 26px 0;
   text-align: left;
 }
-.service__num {
-  font-family: var(--font-display);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  color: var(--muted);
-  padding-top: 0.55em;
-  align-self: start;
+.service__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease), color 0.35s var(--ease);
 }
+.service__mark svg { width: 17px; height: 17px; }
+.service.is-open .service__mark { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .service__name {
   font-family: var(--font-display);
   font-weight: 500;
@@ -523,14 +528,17 @@ section[id] {
   border-top: 1px solid var(--ink);
   padding-top: 18px;
 }
-.step__num {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  color: var(--muted);
+.step__mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 50%;
   margin-bottom: clamp(20px, 3vw, 40px);
 }
+.step__mark svg { width: 17px; height: 17px; }
 .step h3 {
   font-family: var(--font-display);
   font-weight: 500;
@@ -636,7 +644,8 @@ section[id] {
 }
 .contact__lead { color: var(--muted); max-width: 40ch; margin-bottom: clamp(28px, 4vw, 44px); }
 .contact__details { display: grid; gap: 16px; border-top: 1px solid var(--line); padding-top: 22px; }
-.contact__details li { display: grid; gap: 3px; font-size: 0.95rem; }
+.contact__details li { display: grid; gap: 6px; font-size: 0.95rem; }
+.contact__links { display: grid; gap: 2px; justify-items: start; }
 .contact__details span {
   font-size: 0.67rem;
   letter-spacing: 0.18em;
@@ -644,14 +653,17 @@ section[id] {
   color: var(--muted);
 }
 .contact__details a {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   border-bottom: 1px solid transparent;
   transition: border-color 0.3s var(--ease);
   width: fit-content;
   white-space: nowrap;
 }
-.contact__details a:not(:last-child)::after { content: ","; }
+.contact__details svg { width: 15px; height: 15px; flex: none; opacity: 0.55; transition: opacity 0.3s var(--ease); }
 .contact__details a:hover { border-bottom-color: var(--ink); }
+.contact__details a:hover svg { opacity: 1; }
 
 .form {
   display: grid;
@@ -827,6 +839,8 @@ section[id] {
   .steps { grid-template-columns: minmax(0, 1fr); }
   .form { grid-template-columns: minmax(0, 1fr); }
   .service__toggle { grid-template-columns: 34px minmax(0, 1fr) 28px; gap: 10px; padding: 20px 0; }
+  .service__mark { width: 30px; height: 30px; }
+  .service__mark svg { width: 15px; height: 15px; }
   .service__inner > p { padding: 0 0 4px 44px; }
   .tags { padding: 16px 0 24px 44px; }
   .slogan__text { text-align: left; }
